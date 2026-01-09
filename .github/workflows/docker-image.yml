@@ -1,0 +1,71 @@
+name: Docker Compose CI/CD
+
+on:
+  push: 
+    branches: [ "main" ]
+  pull_request: 
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses:  actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create .env file
+      working-directory: ./backend
+      run: |
+        echo "Creating .env file for testing..."
+        cat > .env << EOF
+        NODE_ENV=test
+        PORT=3000
+        POSTGRES_HOST=postgres
+        POSTGRES_PORT=5432
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=password
+        POSTGRES_DB=gedpro
+        MONGO_URI=mongodb://mongo:27017/gedpro
+        EOF
+
+    - name: Build Docker Compose services
+      working-directory: ./backend
+      run: docker compose build
+
+    - name: Start Docker Compose services
+      working-directory: ./backend
+      run: docker compose up -d
+
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 15
+        docker compose -f ./backend/docker-compose.yml ps
+
+    - name: Check service health
+      working-directory: ./backend
+      run: |
+        echo "Checking PostgreSQL..."
+        docker compose exec -T postgres pg_isready -U postgres
+        echo "Checking MongoDB..."
+        docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')"
+
+    - name: Run tests
+      working-directory: ./backend
+      run: |
+        # Run tests in the app container
+        docker compose exec -T app npm test
+
+    - name: Show logs on failure
+      if: failure()
+      working-directory: ./backend
+      run: docker compose logs
+
+    - name: Stop Docker Compose services
+      if: always()
+      working-directory: ./backend
+      run: docker compose down -v
