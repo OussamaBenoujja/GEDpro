@@ -17,44 +17,55 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Create .env file
+      working-directory: ./backend
+      run: |
+        echo "Creating .env file for testing..."
+        cat > .env << EOF
+        NODE_ENV=test
+        PORT=3000
+        POSTGRES_HOST=postgres
+        POSTGRES_PORT=5432
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=password
+        POSTGRES_DB=gedpro
+        MONGO_URI=mongodb://mongo:27017/gedpro
+        EOF
+
     - name: Build Docker Compose services
+      working-directory: ./backend
       run: docker compose build
 
     - name: Start Docker Compose services
+      working-directory: ./backend
       run: docker compose up -d
 
     - name: Wait for services to be ready
-      run:  |
+      run: |
         echo "Waiting for services to start..."
-        sleep 10
-        docker compose ps
+        sleep 15
+        docker compose -f ./backend/docker-compose.yml ps
+
+    - name: Check service health
+      working-directory: ./backend
+      run: |
+        echo "Checking PostgreSQL..."
+        docker compose exec -T postgres pg_isready -U postgres
+        echo "Checking MongoDB..."
+        docker compose exec -T mongo mongosh --eval "db.adminCommand('ping')"
 
     - name: Run tests
+      working-directory: ./backend
       run: |
-        # Option 1: Run tests in a specific service container
-        docker compose exec -T <your-service-name> npm test
-        
-        # Option 2: Run a dedicated test service if you have one
-        # docker compose run --rm test
-        
-        # Option 3: Run tests with docker compose
-        # docker compose -f docker-compose.yml -f docker-compose.test.yml up --abort-on-container-exit
+        # Run tests in the app container
+        docker compose exec -T app npm test
 
     - name: Show logs on failure
       if: failure()
+      working-directory: ./backend
       run: docker compose logs
 
     - name: Stop Docker Compose services
       if: always()
+      working-directory: ./backend
       run: docker compose down -v
-
-    - name: Login to Docker Hub (optional - for deployment)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses:  docker/login-action@v3
-      with:
-        username:  ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push images (optional - for deployment)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: docker compose push
