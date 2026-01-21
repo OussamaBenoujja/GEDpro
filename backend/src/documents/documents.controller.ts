@@ -22,12 +22,6 @@ export class DocumentsController {
         return this.documentsService.upload(file, candidateId, req.user.orgId);
     }
 
-    @Get()
-    @Roles(UserRole.HR, UserRole.ADMIN, UserRole.MANAGER)
-    findAll(@Request() req) {
-        return this.documentsService.findAll(req.user.orgId);
-    }
-
     @Get(':id')
     @Roles(UserRole.HR, UserRole.ADMIN, UserRole.MANAGER)
     findOne(@Param('id') id: string, @Request() req) {

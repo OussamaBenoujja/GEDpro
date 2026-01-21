@@ -5,24 +5,11 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../users/user.entity';
 import { Form } from './form.schema';
-import { Public } from '../auth/public.decorator';
 
 @Controller('forms')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class FormsController {
     constructor(private readonly formsService: FormsService) { }
-
-    @Get('public')
-    @Public()
-    findPublished() {
-        return this.formsService.findPublished();
-    }
-
-    @Get('public/:id')
-    @Public()
-    findPublishedOne(@Param('id') id: string) {
-        return this.formsService.findPublishedOne(id);
-    }
 
     @Post()
     @Roles(UserRole.HR, UserRole.ADMIN)

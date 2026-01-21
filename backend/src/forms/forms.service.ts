@@ -36,14 +36,4 @@ export class FormsService {
             throw new NotFoundException('Form not found');
         }
     }
-
-    async findPublished(): Promise<Form[]> {
-        return this.formModel.find({ isPublished: true }).exec();
-    }
-
-    async findPublishedOne(id: string): Promise<Form> {
-        const form = await this.formModel.findOne({ _id: id, isPublished: true }).exec();
-        if (!form) throw new NotFoundException('Form not found or not published');
-        return form;
-    }
 }

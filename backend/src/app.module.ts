@@ -12,13 +12,9 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { Organization } from './organizations/organization.entity';
 import { OrganizationsModule } from './organizations/organizations.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/gedpro', {
       connectionFactory: (connection: Connection) => {
         if (connection.readyState === ConnectionStates.connected) {
