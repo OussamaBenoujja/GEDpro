@@ -9,6 +9,13 @@ export enum FieldType {
     DATE = 'DATE',
 }
 
+export enum FormType {
+    RECRUITMENT = 'RECRUITMENT',
+    ONBOARDING = 'ONBOARDING',
+    EVALUATION = 'EVALUATION',
+    OTHER = 'OTHER',
+}
+
 @Schema()
 export class FormField {
     @Prop({ required: true })
@@ -37,6 +44,9 @@ export class Form extends Document {
 
     @Prop({ default: false })
     isPublished: boolean;
+
+    @Prop({ type: String, enum: FormType, default: FormType.OTHER })
+    type: FormType;
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);
