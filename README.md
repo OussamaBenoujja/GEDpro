@@ -10,7 +10,19 @@ A comprehensive HR Document Management System built with NestJS (Backend) and Ne
 -   **Document Management**: Secure upload and OCR processing for CVs and other documents.
 -   **Authentication**: Role-based access control (Admin, HR, Manager).
 
+## Screenshots
 
+### Dashboard
+The central hub for HR activities, displaying key metrics.
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Job Vacancies
+Manage open positions and creating new job listings.
+![Jobs](docs/screenshots/jobs.png)
+
+### Candidate Board
+Visual pipeline for managing candidate progress.
+![Candidates](docs/screenshots/candidates.png)
 
 ## Tech Stack
 
