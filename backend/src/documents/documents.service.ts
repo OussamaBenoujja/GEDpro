@@ -63,6 +63,10 @@ export class DocumentsService {
         return newDoc.save();
     }
 
+    async findAll(organizationId: string): Promise<DocMetadata[]> {
+        return this.docModel.find({ organizationId }).sort({ createdAt: -1 }).exec();
+    }
+
     async findOne(id: string, organizationId: string): Promise<DocMetadata> {
         const doc = await this.docModel.findOne({ _id: id, organizationId }).exec();
         if (!doc) throw new NotFoundException('Document not found');
